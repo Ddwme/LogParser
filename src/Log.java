@@ -9,8 +9,8 @@ import java.io.*;
 
 public class Log extends JPanel {
     JTextArea textPath, textSearch, fileContent, textTab;
-    JButton openButton, searchButton;
-    JFileChooser fc;
+    JButton openButton, searchButton, saveButton;
+    JFileChooser fc, fc1;
     JSplitPane splitPane;
     JComboBox<String> extTitles = new JComboBox<String>();
     List directoryList = new List(10, false);
@@ -41,6 +41,7 @@ public class Log extends JPanel {
         fileContent = new JTextArea(20, 30);
         fileContent.setLineWrap(true);
         openButton = new JButton("Открыть папку");
+        saveButton = new JButton("Сохранить");
         searchButton = new JButton("Найти");
 
         JScrollPane pathScrollPane = new JScrollPane(textPath);
@@ -53,14 +54,17 @@ public class Log extends JPanel {
         contentScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         contentScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         fc = new JFileChooser();
+        fc1 = new JFileChooser();
+        fc1.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, directoryList, contentScrollPane);
         splitPane.setOneTouchExpandable(true);
         splitPane.setDividerLocation(150);
-        Dimension minimumSize = new Dimension(100, 500);
+
 
 
         openButton.addActionListener(new MyOpenFolderListener());
+        saveButton.addActionListener(new MySaveFileListener());
         directoryList.addActionListener(new MySelectedItemListener());
         searchButton.addActionListener(new MySearchListener());
 
@@ -79,14 +83,15 @@ public class Log extends JPanel {
         northBox.add(extTitles);
         northBox.add(Box.createRigidArea(new Dimension(10, 0)));
         northBox.add(searchButton);
+        northBox.add(Box.createRigidArea(new Dimension(10, 0)));
+        northBox.add(saveButton);
         panelNorth.add(northBox);
-        //Добавляем в центральную область две панели правую и левую
 
 
 
         frame.getContentPane().add(BorderLayout.CENTER, splitPane);
         frame.getContentPane().add(BorderLayout.NORTH, panelNorth);
-        frame.setSize(800, 500);
+        frame.setSize(900, 500);
         frame.setVisible(true);
 
     }
@@ -155,6 +160,25 @@ public class Log extends JPanel {
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File file = fc.getSelectedFile();
                     textPath.setText(file.getPath());
+                }
+            }
+        }
+    }
+
+    public class MySaveFileListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            if (e.getSource() == saveButton) {
+                int returnVal = fc1.showSaveDialog(Log.this);
+
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    try{
+                        FileWriter fileWriter = new FileWriter(fc1.getSelectedFile());
+                        fileWriter.write(fileContent.getText());
+                        fileWriter.close();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+
                 }
             }
         }
